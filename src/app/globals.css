@@ -1,26 +1,231 @@
-@import "tailwindcss";
+/* ./globals.css */
 
+/* Variables de color para modo claro */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --accent-bg: #0070f3;
+  --accent-fg: #ffffff;
+  --error-bg: #ffebee;
+  --error-text: #d32f2f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Modo oscuro: fondo oscuro pero texto forzado en negro */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #000000;
+    --accent-bg: #0f64d2;
+    --accent-fg: #ffffff;
+    --error-bg: #ff5252;
+    --error-text: #ffffff;
   }
 }
 
+html,
 body {
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Comfortaa', sans-serif;
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Responsividad general */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+
+  .content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .form {
+    gap: 0.8rem;
+  }
+
+  .field {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Layout */
+.header {
+  background-color: var(--accent-bg);
+  padding: 1rem;
+  text-align: center;
+  color: var(--accent-fg);
+}
+
+p {
+  margin-bottom: 1.5rem;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: var(--accent-bg);
+  padding: 1rem;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: var(--accent-fg);
+  z-index: 1000;
+}
+
+.sidebar h2 {
+  margin-bottom: 2rem;
+}
+
+.sidebar a {
+  display: block;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-fg);
+}
+
+/* Contenido principal */
+.content {
+  margin-left: 240px;
+  padding: 2rem;
+}
+
+.main {
+  min-height: 60vh;
+  padding: 2rem;
+}
+
+.footer {
+  background-color: var(--accent-bg);
+  color: var(--accent-fg);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+}
+
+/* Contenedores y formularios */
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fefefe;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--foreground);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.field input,
+.field select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: var(--foreground);
+  background-color: #fff;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent-bg);
+}
+
+.button {
+  background-color: var(--accent-bg);
+  color: var(--accent-fg);
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 1rem;
+}
+
+.button:hover {
+  background-color: #005bb5;
+}
+
+.button:disabled {
+  background-color: #b0b0b0;
+  cursor: not-allowed;
+}
+
+/* Estilos de carga */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid var(--accent-bg);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.result {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Estilos de error */
+.error {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  padding: 1rem;
+  border-radius: 5px;
+  margin-top: 1rem;
+  text-align: center;
 }
