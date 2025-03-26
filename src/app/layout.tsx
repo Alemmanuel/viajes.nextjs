@@ -1,8 +1,8 @@
-// ./layout.tsx
+// src/app/layout.tsx
 import "./globals.css";
 import { comfortaa } from "./fonts";
 import { Metadata } from "next";
-import Link from "next/link";
+import MobileMenu from "./components/page";
 
 export const metadata: Metadata = {
   title: "Trip Cost Manager",
@@ -13,15 +13,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="./favicon.ico" />
       </head>
       <body className={comfortaa.className}>
-        <aside className="sidebar">
-          <h2>Menú</h2>
-          <Link href="/">Inicio</Link>
-          <Link href="/calculate">Calcular Viaje</Link>
-          <Link href="/about">Acerca de</Link>
-        </aside>
+        <MobileMenu />
         <div className="content">
           {children}
           <footer className="footer">

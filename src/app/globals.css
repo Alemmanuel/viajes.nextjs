@@ -10,7 +10,7 @@
   --error-text: #d32f2f;
 }
 
-/* Modo oscuro: fondo oscuro pero texto forzado en negro */
+/* Modo oscuro */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -42,46 +42,7 @@ a {
   box-sizing: border-box;
 }
 
-/* Responsividad general */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-  }
-
-  .content {
-    margin-left: 0;
-    padding: 1rem;
-  }
-
-  .container {
-    margin: 1rem;
-    padding: 1rem;
-  }
-
-  .form {
-    gap: 0.8rem;
-  }
-
-  .field {
-    margin-bottom: 0.5rem;
-  }
-}
-
-/* Layout */
-.header {
-  background-color: var(--accent-bg);
-  padding: 1rem;
-  text-align: center;
-  color: var(--accent-fg);
-}
-
-p {
-  margin-bottom: 1.5rem;
-}
-
-/* Sidebar */
+/* Sidebar para desktop */
 .sidebar {
   width: 220px;
   background-color: var(--accent-bg);
@@ -105,14 +66,9 @@ p {
   color: var(--accent-fg);
 }
 
-/* Contenido principal */
+/* Contenido principal para desktop */
 .content {
   margin-left: 240px;
-  padding: 2rem;
-}
-
-.main {
-  min-height: 60vh;
   padding: 2rem;
 }
 
@@ -125,7 +81,18 @@ p {
   margin-top: 2rem;
 }
 
-/* Contenedores y formularios */
+/* Otros estilos generales */
+.header {
+  background-color: var(--accent-bg);
+  padding: 1rem;
+  text-align: center;
+  color: var(--accent-fg);
+}
+
+p {
+  margin-bottom: 1.5rem;
+}
+
 .container {
   max-width: 700px;
   margin: 2rem auto;
@@ -209,8 +176,12 @@ p {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .result {
@@ -220,7 +191,6 @@ p {
   font-weight: bold;
 }
 
-/* Estilos de error */
 .error {
   background-color: var(--error-bg);
   color: var(--error-text);
@@ -228,4 +198,55 @@ p {
   border-radius: 5px;
   margin-top: 1rem;
   text-align: center;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  /* Encabezado móvil */
+  .mobile-header {
+    display: block;
+    background-color: var(--accent-bg);
+    padding: 1rem;
+    text-align: right;
+  }
+
+  .menu-toggle {
+    background-color: var(--accent-bg);
+    color: var(--accent-fg);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  /* Ajuste del sidebar para móvil */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 1rem;
+    display: none;
+  }
+
+  .sidebar.open {
+    display: block;
+  }
+
+  /* El contenido se ubica debajo del sidebar */
+  .content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .form {
+    gap: 0.8rem;
+  }
+
+  .field {
+    margin-bottom: 0.5rem;
+  }
 }
