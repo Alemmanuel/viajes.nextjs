@@ -35,7 +35,7 @@ async function getDistance(
 
 async function getFuelPrice(): Promise<number> {
   // Default to a fixed price if external API fails
-  return 4000; // Valor predeterminado en COP
+  return 15753; // Valor predeterminado en COP
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
