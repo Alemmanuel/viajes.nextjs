@@ -3,24 +3,14 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import pkg from 'pg';
 
-const { Pool } = pkg;
-
-// Exportamos pool para evitar warnings y para posibles usos futuros
-export const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    'postgres://neondb_owner:npg_BXPliJTQv14m@ep-royal-hat-a50vyfld-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require',
-  ssl: { rejectUnauthorized: false },
-});
 
 // Precio del galón en COP
 const costPerGallon = 15573;
 
 /**
- * @param address Dirección a geocodificar.
- * @returns Coordenadas { lat, lon }.
+ * Geocodifica una dirección usando Nominatim (OpenStreetMap).
+ * No requiere API key.
  */
 async function geocodeAddress(address: string) {
   const encoded = encodeURIComponent(address);
@@ -38,11 +28,7 @@ async function geocodeAddress(address: string) {
 }
 
 /**
- * @param lat1 Latitud del origen.
- * @param lon1 Longitud del origen.
- * @param lat2 Latitud del destino.
- * @param lon2 Longitud del destino.
- * @returns Distancia en kilómetros.
+ * Obtiene la distancia real en km entre dos puntos usando OSRM.
  */
 async function getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: number): Promise<number> {
   const url = `http://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
@@ -59,19 +45,17 @@ async function getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: n
 }
 
 /**
- * @param distanceKm Distancia en kilómetros.
- * @param engineSize Cilindraje del vehículo en litros.
- * @returns Objeto con { gallonsUsed, totalFuelCost }.
+ * Calcula el consumo y costo total de combustible basado en la distancia real y el cilindraje.
+ * Asume un consumo base de 7 L/100km para un motor de 1.6L y convierte a galones (1 galón = 3.785 L).
  */
 function calculateConsumptionAndCost(distanceKm: number, engineSize: string) {
-  const baseConsumption = 7; // litros/100km para un motor 1.6L
+  const baseConsumption = 7; // L/100km para motor 1.6L
   const rate = parseFloat(engineSize) / 1.6;
   const litersUsed = (distanceKm * baseConsumption * rate) / 100;
   const gallonsUsed = litersUsed / 3.785;
   const totalFuelCost = gallonsUsed * costPerGallon;
   return { gallonsUsed, totalFuelCost };
 }
-
 
 export async function POST(req: Request) {
   try {
@@ -83,13 +67,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Geocodifica las direcciones de origen y destino
+    // Geocodifica origen y destino
     const [originCoords, destinationCoords] = await Promise.all([
       geocodeAddress(origin),
       geocodeAddress(destination),
     ]);
 
-    // Obtiene la distancia real en kilómetros usando OSRM
+    // Obtiene la distancia real en km usando OSRM
     const distanceKm = await getDistanceInKm(
       originCoords.lat,
       originCoords.lon,
@@ -97,10 +81,10 @@ export async function POST(req: Request) {
       destinationCoords.lon
     );
 
-    // Calcula el consumo y costo basado en la distancia real y el cilindraje
+    // Calcula el consumo y costo
     const { gallonsUsed, totalFuelCost } = calculateConsumptionAndCost(distanceKm, engineSize);
 
-    // Construye la respuesta con la estructura esperada
+    // Retorna la estructura requerida
     const responseData = {
       routeSummary: { distanceKm },
       fuelConsumption: { gallonsUsed },
