@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import "./globals.css";
 import { comfortaa } from "./fonts";
 import { Metadata } from "next";
@@ -14,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="./favicon.ico" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={comfortaa.className}>
         <MobileMenu />

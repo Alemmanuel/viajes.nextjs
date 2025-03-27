@@ -1,3 +1,5 @@
+// src/app/calculate/page.tsx
+
 "use client";
 import { useState, FormEvent } from "react";
 
@@ -34,9 +36,9 @@ export default function CalculatePage() {
       }
 
       setRouteData({
-        distance: data.routeSummary.distanceKm,
-        gallonsUsed: data.fuelConsumption.gallonsUsed,
-        fuelCost: data.costDetails.totalFuelCost
+        distance: Number(data.routeSummary.distanceKm),
+        gallonsUsed: Number(data.fuelConsumption.gallonsUsed),
+        fuelCost: Number(data.costDetails.totalFuelCost)
       });
     } finally {
       setIsLoading(false);
@@ -107,7 +109,7 @@ export default function CalculatePage() {
         <div className="result">
           <h2>Distancia: {routeData.distance?.toFixed(2)} km</h2>
           <h2>Galones usados: {routeData.gallonsUsed?.toFixed(2)} gal</h2>
-          <h2>Costo total del combustible: ${routeData.fuelCost?.toFixed(2)}</h2>
+          <h2>Costo total del combustible: ${routeData.fuelCost?.toFixed(2)} COP</h2>
         </div>
       )}
     </div>

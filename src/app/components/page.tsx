@@ -1,23 +1,22 @@
-// src/components/MobileMenu.tsx
 "use client";
-import React, { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function MobileMenu() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       {/* Encabezado móvil */}
-      <header className="mobile-header">
-        <button className="menu-toggle" onClick={() => setMenuOpen((prev) => !prev)}>
-          {menuOpen ? "Cerrar Menú" : "Abrir Menú"}
+      <div className="mobile-header">
+        <button className="menu-toggle" onClick={() => setOpen(!open)}>
+          {open ? "Cerrar Menú" : "Abrir Menú"}
         </button>
-      </header>
+      </div>
 
-      {/* Sidebar: en desktop se muestra siempre; en móvil, se muestra si está abierto */}
-      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <h2>Menú</h2>
+      {/* Sidebar */}
+      <aside className={`sidebar ${open ? "open" : ""}`}>
+        <h2>Trip Cost Manager</h2>
         <Link href="/">Inicio</Link>
         <Link href="/calculate">Calcular Viaje</Link>
         <Link href="/about">Acerca de</Link>
