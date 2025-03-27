@@ -7,20 +7,21 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
-// Usa la cadena de conexión; si no está definida en el entorno, se usa la predeterminada.
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgres://neondb_owner:npg_BXPliJTQv14m@ep-royal-hat-a50vyfld-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require';
-
-const pool = new Pool({
-  connectionString,
+// Exportamos pool para evitar warnings y para posibles usos futuros
+export const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL ||
+    'postgres://neondb_owner:npg_BXPliJTQv14m@ep-royal-hat-a50vyfld-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require',
   ssl: { rejectUnauthorized: false },
 });
 
-// Precio del galón en Colombia (COP)
+// Precio del galón en COP
 const costPerGallon = 15573;
 
-// Función para obtener lat/lon desde una dirección usando Nominatim
+/**
+ * @param address Dirección a geocodificar.
+ * @returns Coordenadas { lat, lon }.
+ */
 async function geocodeAddress(address: string) {
   const encoded = encodeURIComponent(address);
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encoded}`;
@@ -28,52 +29,52 @@ async function geocodeAddress(address: string) {
   if (!resp.ok) {
     throw new Error(`Error geocodificando "${address}": ${resp.statusText}`);
   }
-
   const data = await resp.json();
-  if (!Array.isArray(data) || data.length === 0) {
+  if (!data || data.length === 0) {
     throw new Error(`No se encontró ubicación para "${address}"`);
   }
-
-  // Tomamos la primera coincidencia
   const { lat, lon } = data[0];
   return { lat: parseFloat(lat), lon: parseFloat(lon) };
 }
 
-// Función para obtener la distancia real (en km) usando OSRM
-async function getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  // OSRM usa el formato: /route/v1/driving/{lon1},{lat1};{lon2},{lat2}
-  // Devuelve la distancia en metros
+/**
+ * @param lat1 Latitud del origen.
+ * @param lon1 Longitud del origen.
+ * @param lat2 Latitud del destino.
+ * @param lon2 Longitud del destino.
+ * @returns Distancia en kilómetros.
+ */
+async function getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: number): Promise<number> {
   const url = `http://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
   const resp = await fetch(url, { headers: { 'User-Agent': 'TripCostManager/1.0' } });
   if (!resp.ok) {
     throw new Error(`Error obteniendo ruta OSRM: ${resp.statusText}`);
   }
-
   const data = await resp.json();
   if (!data.routes || data.routes.length === 0) {
-    throw new Error(`No se encontró ruta en OSRM para los puntos [${lat1},${lon1}] -> [${lat2},${lon2}]`);
+    throw new Error(`No se encontró ruta en OSRM para los puntos indicados`);
   }
-
   const distanceMeters = data.routes[0].distance;
-  const distanceKm = distanceMeters / 1000;
-  return distanceKm;
+  return distanceMeters / 1000;
 }
 
-// Calcula consumo y costo con base en la distancia, cilindraje y precio del galón en Colombia
+/**
+ * @param distanceKm Distancia en kilómetros.
+ * @param engineSize Cilindraje del vehículo en litros.
+ * @returns Objeto con { gallonsUsed, totalFuelCost }.
+ */
 function calculateConsumptionAndCost(distanceKm: number, engineSize: string) {
-  // Consumo base: 7 L/100km para un motor 1.6
-  const baseConsumption = 7; 
-  const rate = parseFloat(engineSize) / 1.6; 
+  const baseConsumption = 7; // litros/100km para un motor 1.6L
+  const rate = parseFloat(engineSize) / 1.6;
   const litersUsed = (distanceKm * baseConsumption * rate) / 100;
   const gallonsUsed = litersUsed / 3.785;
   const totalFuelCost = gallonsUsed * costPerGallon;
-
   return { gallonsUsed, totalFuelCost };
 }
 
+
 export async function POST(req: Request) {
   try {
-    // Recibe datos del frontend
     const { origin, destination, engineSize } = await req.json();
     if (!origin || !destination || !engineSize) {
       return NextResponse.json(
@@ -82,13 +83,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Geocodificar origen y destino con Nominatim
+    // Geocodifica las direcciones de origen y destino
     const [originCoords, destinationCoords] = await Promise.all([
       geocodeAddress(origin),
       geocodeAddress(destination),
     ]);
 
-    // 2. Obtener distancia real usando OSRM
+    // Obtiene la distancia real en kilómetros usando OSRM
     const distanceKm = await getDistanceInKm(
       originCoords.lat,
       originCoords.lon,
@@ -96,10 +97,10 @@ export async function POST(req: Request) {
       destinationCoords.lon
     );
 
-    // 3. Calcular consumo y costo
+    // Calcula el consumo y costo basado en la distancia real y el cilindraje
     const { gallonsUsed, totalFuelCost } = calculateConsumptionAndCost(distanceKm, engineSize);
 
-    // 4. Retornar la estructura que tu frontend espera
+    // Construye la respuesta con la estructura esperada
     const responseData = {
       routeSummary: { distanceKm },
       fuelConsumption: { gallonsUsed },
